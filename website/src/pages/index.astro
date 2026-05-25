@@ -1,0 +1,160 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const now = new Date();
+
+const all = (await getCollection('performances', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const upcoming = all.filter(p => p.data.date >= now);
+const past = all.filter(p => p.data.date < now);
+
+function formatDate(d: Date) {
+  return d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+function typeLabel(t: string) {
+  const labels: Record<string, string> = {
+    'av': 'A/V',
+    'dj-set': 'DJ Set',
+    'talk': 'Talk',
+    'event': 'Event',
+  };
+  return labels[t] || t;
+}
+---
+
+<Layout>
+  <header class="site-header">
+    <h1>NDA Studio</h1>
+  </header>
+
+  {upcoming.length > 0 && (
+    <section class="performances">
+      <h2>Upcoming</h2>
+      <ul>
+        {upcoming.map((p) => (
+          <li>
+            <span class="date">{formatDate(p.data.date)}</span>
+            <span class="type">[{typeLabel(p.data.type)}]</span>
+            {p.data.url ? (
+              <a href={p.data.url} target="_blank" rel="noopener">{p.data.title}</a>
+            ) : (
+              <span class="title">{p.data.title}</span>
+            )}
+            <span class="venue">{p.data.venue}, {p.data.city}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  {past.length > 0 && (
+    <section class="performances">
+      <h2>Past</h2>
+      <ul>
+        {past.map((p) => (
+          <li>
+            <span class="date">{formatDate(p.data.date)}</span>
+            <span class="type">[{typeLabel(p.data.type)}]</span>
+            {p.data.url ? (
+              <a href={p.data.url} target="_blank" rel="noopener">{p.data.title}</a>
+            ) : (
+              <span class="title">{p.data.title}</span>
+            )}
+            <span class="venue">{p.data.venue}, {p.data.city}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  {all.length === 0 && (
+    <section class="performances">
+      <p class="empty">No performances listed yet.</p>
+    </section>
+  )}
+</Layout>
+
+<style>
+  .site-header {
+    margin-bottom: 3rem;
+  }
+
+  .site-header h1 {
+    font-size: 1.5rem;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .performances {
+    margin-bottom: 3rem;
+  }
+
+  .performances h2 {
+    font-size: 11px;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--fg-muted);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  ul {
+    list-style: none;
+  }
+
+  li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: baseline;
+    padding: 0.4rem 0;
+    font-size: 13px;
+  }
+
+  li + li {
+    border-top: 1px solid var(--border);
+  }
+
+  .date {
+    color: var(--fg-muted);
+    flex-shrink: 0;
+    min-width: 7.5em;
+  }
+
+  .type {
+    color: var(--fg-muted);
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+
+  .title {
+    color: var(--fg);
+  }
+
+  .venue {
+    color: var(--fg-muted);
+    font-size: 12px;
+    margin-left: auto;
+  }
+
+  .empty {
+    color: var(--fg-muted);
+  }
+
+  @media (max-width: 480px) {
+    li {
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .venue {
+      margin-left: 0;
+    }
+  }
+</style>

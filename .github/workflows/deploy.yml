@@ -1,0 +1,45 @@
+name: Build & Deploy to Strato
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'website/**'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: website/package-lock.json
+
+      - name: Install
+        working-directory: website
+        run: npm install --no-audit --no-fund
+
+      - name: Build
+        working-directory: website
+        run: npm run build
+
+      - name: Deploy to Strato
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ssh.strato.de
+          username: ${{ secrets.STRATO_USER }}
+          password: ${{ secrets.STRATO_PASS }}
+          protocol: ftps
+          port: 21
+          local-dir: ./website/dist/
+          server-dir: /
+          exclude: |
+            **/.DS_Store
+            **/node_modules/**
