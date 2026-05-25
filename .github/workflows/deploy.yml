@@ -1,4 +1,4 @@
-name: Build & Deploy to Strato
+name: Build & Deploy to GitHub Pages
 
 on:
   push:
@@ -8,10 +8,18 @@ on:
       - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -30,16 +38,18 @@ jobs:
         working-directory: website
         run: npm run build
 
-      - name: Deploy to Strato
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          server: ssh.strato.de
-          username: ${{ secrets.STRATO_USER }}
-          password: ${{ secrets.STRATO_PASS }}
-          protocol: ftps
-          port: 21
-          local-dir: ./website/dist/
-          server-dir: /
-          exclude: |
-            **/.DS_Store
-            **/node_modules/**
+          path: website/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
