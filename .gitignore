@@ -1,0 +1,62 @@
+# --- Media (stored externally, not in git) ---
+media/
+**/media/
+raw/
+**/raw/
+
+# Video
+*.mp4
+*.mov
+*.mkv
+*.avi
+*.webm
+*.m4v
+*.prores
+
+# Audio (raw / heavy)
+*.wav
+*.aif
+*.aiff
+*.flac
+*.alac
+
+# Photo (raw / heavy)
+*.psd
+*.psb
+*.tif
+*.tiff
+*.raw
+*.arw
+*.cr2
+*.cr3
+*.nef
+*.dng
+*.orf
+*.rw2
+
+# Project files from heavy apps
+*.aep
+*.prproj
+*.fcpbundle
+*.als
+*.logicx
+*.ptx
+*.blend1
+
+# --- OS / editor junk ---
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*~
+
+# --- Node / website build ---
+node_modules/
+dist/
+build/
+.next/
+.cache/
+.env
+.env.local
