@@ -1,6 +1,6 @@
 # Repo Conventions
 
-These rules apply to every skill in this repo.
+These rules apply to all items created in the NDA Studio repo.
 
 ## Slugs (folder names)
 
@@ -9,8 +9,9 @@ These rules apply to every skill in this repo.
 - No spaces, no underscores, no accents (transliterate: `é → e`, `ł → l`)
 - No leading/trailing hyphens, no consecutive hyphens
 - For dated items (residencies, performances, events, open calls) **append the year**: `berlin-atonal-2026`
-- For client projects, the slug is the project name only — the year/date goes in the README frontmatter
-- For performances, prefer `<title>-<yyyy-mm-dd>` if the date is the defining attribute
+- For client projects, the slug is the project name only — the date goes in the README
+- For performances, prefer `<title>-<YYYY-MM-DD>` or `<venue>-<YYYY-MM-DD>`
+- For blog posts, prefix with date: `2026-03-14-my-post`
 
 Examples:
 - ✅ `acme-rebrand`, `berlin-atonal-2026`, `echoes-of-silence-2026-03-14`
@@ -41,7 +42,7 @@ Minimum:
 
 ```
 <item-slug>/
-├── README.md          # required, see template
+├── README.md          # required
 └── .gitkeep           # only if no other files yet
 ```
 
@@ -63,16 +64,16 @@ Never commit:
 - `.mp4 .mov .mkv .webm .wav .aif .flac .psd .tif .raw .arw .cr2 .nef .dng`
 - heavy app project files (`.aep .prproj .als .logicx .blend1`)
 
-These live on the studio drive / cloud. The README should link to where the media for that item is stored if relevant.
-
-## README frontmatter
-
-Every item README starts with YAML frontmatter — see [`readme-template.md`](readme-template.md).
+These live on the studio drive / cloud. The README should note where media is stored.
 
 ## Asking the user
 
-When a skill says "ask the user X", ask **only the questions in that skill**, in order, one at a time or as a short batch. Never invent values. If the user says "you decide" for a field, pick a reasonable default and tell them what you picked.
+- Ask **only the questions listed** in the skill, in order
+- Ask required questions together as a numbered list
+- The user may answer "skip" for optional ones
+- Never invent values
+- If the user says "you decide", pick a reasonable default and tell them what you picked
 
 ## Committing
 
-After scaffolding, stage the new files and show the user a summary. Do not push without being asked.
+After scaffolding, stage files with `git add` and show a summary. Do **not** commit or push unless the user asks.

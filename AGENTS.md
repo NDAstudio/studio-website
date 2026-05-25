@@ -1,41 +1,43 @@
 # Instructions for AI Agents
 
-This repo uses **skills** (the [Agent Skills standard](https://agentskills.io/specification)) for all scaffolding.
+This repo uses the [Agent Skills standard](https://agentskills.io/specification) for scaffolding.
 
-## When asked to create anything
+## Skill
 
-Do **not** create folders by hand. Find and follow the matching skill in [`skills/`](skills/):
+There is one skill: **`create-project`** at `.agents/skills/create-project/SKILL.md`.
 
-| Request | Skill |
+It handles all item types:
+
+| Request | Type |
 |---|---|
-| "create a client …" | [`skills/create-client/SKILL.md`](skills/create-client/SKILL.md) |
-| "new project for client X …" | [`skills/create-client-project/SKILL.md`](skills/create-client-project/SKILL.md) |
-| "new collab with …" | [`skills/create-collab/SKILL.md`](skills/create-collab/SKILL.md) |
-| "new residency …" | [`skills/create-residency/SKILL.md`](skills/create-residency/SKILL.md) |
-| "new studio project …" | [`skills/create-studio-project/SKILL.md`](skills/create-studio-project/SKILL.md) |
-| "new research/experiment …" | [`skills/create-research/SKILL.md`](skills/create-research/SKILL.md) |
-| "new open call …" | [`skills/create-open-call/SKILL.md`](skills/create-open-call/SKILL.md) |
-| "new performance / a-v set / dj set / talk / event …" | [`skills/create-performance/SKILL.md`](skills/create-performance/SKILL.md) |
-| "new product / tool / app / resource / tutorial / blog post / newsletter …" | [`skills/create-product/SKILL.md`](skills/create-product/SKILL.md) |
+| "new client" | `client` |
+| "new project for client X" | `client-project` |
+| "new collab with …" | `collab` |
+| "new residency at …" | `residency` |
+| "new studio project" | `studio-project` |
+| "new experiment / research" | `research` |
+| "new open call" | `open-call` |
+| "new A/V performance / DJ set / talk / event" | `av` / `dj-set` / `talk` / `event` |
+| "new tool / app / resource / tutorial / blog / stream / social" | product types |
 
-Each skill tells you what to ask the user and how to lay out the resulting folder.
+## How to use
 
-## Always
+1. Read `.agents/skills/create-project/SKILL.md`
+2. Follow the flow: determine type → ask questions → compute slug → create folder
+3. Reference files are in `.agents/skills/create-project/references/`
 
-- Follow the conventions in [`skills/_shared/conventions.md`](skills/_shared/conventions.md) (slugs, dates, status vocabulary).
-- Use the README template at [`skills/_shared/readme-template.md`](skills/_shared/readme-template.md) (filled in per skill instructions).
-- Never commit media: `media/` folders and heavy file types are gitignored.
-- If the user is vague, ask the questions listed in the skill — do not invent values.
+## Rules
 
-## Pi users
+- Follow conventions in `references/conventions.md` (slugs, dates, status vocabulary)
+- Use the README template in `references/readme-template.md`
+- Never commit media — `media/` folders and heavy file types are gitignored
+- Do not invent values — ask the user
+- Stage files with `git add` but do not commit or push unless asked
 
-Pi auto-discovers skills under `skills/` via the `SKILL.md` files. You can also invoke them explicitly:
+## Agent-specific setup
 
-```
-/skill:create-client
-/skill:create-client-project
-```
+**Pi** — skills in `.agents/skills/` are auto-discovered. Use `/skill:create-project` or just describe what you need.
 
-## Claude Code / Codex / other harnesses
+**Claude Code** — add to `.claude/settings.json`: `{ "skills": [".agents/skills"] }`
 
-Point your skills config at this repo's `skills/` directory, or just open the SKILL.md file directly and follow it.
+**Other agents** — open `.agents/skills/create-project/SKILL.md` and follow it.

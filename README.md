@@ -33,31 +33,22 @@ nda-studio/
 │
 ├── docs/                          # studio-wide docs (brand, bios, templates)
 │
-└── skills/                        # AI agent skills (see below)
+└── .agents/skills/                # AI agent skills
 ```
-
-Each leaf item is a folder with a `README.md` plus its own subfolders (`assets/`, `deliverables/`, `media/`, etc.).
 
 ## Media
 
-`media/` folders and heavy file types (`.mp4`, `.mov`, `.wav`, `.psd`, RAW photos, etc.) are **gitignored**. They live outside git (external drive / cloud storage). See [`.gitignore`](.gitignore).
+`media/` folders and heavy file types (`.mp4`, `.mov`, `.wav`, `.psd`, RAW photos, etc.) are **gitignored**. They live outside git (external drive / cloud storage).
 
 ## For AI Agents
 
-All scaffolding is done via **skills** in [`skills/`](skills/). To create a new client, project, performance, or product, run the matching skill:
+Scaffolding is handled by the **`create-project`** skill in `.agents/skills/`. It covers all item types: clients, projects, collabs, residencies, performances, products, and more.
 
-| Goal | Skill |
-|---|---|
-| New client | `create-client` |
-| New project for a client | `create-client-project` |
-| New collab | `create-collab` |
-| New residency | `create-residency` |
-| New studio project | `create-studio-project` |
-| New research item | `create-research` |
-| New open call | `create-open-call` |
-| New performance | `create-performance` |
-| New product | `create-product` |
+Use it by saying something like:
+- "create a new client called Acme Corp"
+- "new DJ set at Berghain on 2026-07-15"
+- "add an open call for Ars Electronica 2026"
 
-Conventions (slugs, status vocabulary, README format) are in [`skills/_shared/conventions.md`](skills/_shared/conventions.md).
+The skill will ask the necessary questions and scaffold the correct folder.
 
-See [`AGENTS.md`](AGENTS.md) for AI agent setup.
+See [`AGENTS.md`](AGENTS.md) for details.
