@@ -1,60 +1,22 @@
 # NDA Studio
 
-Monorepo for NDA studio: portfolio website, products, projects, and performances.
+Portfolio website for NDA Studio, built with [Astro](https://astro.build) and deployed to GitHub Pages.
 
 ## Structure
 
 ```
 nda-studio/
-├── website/                       # Portfolio website code
-│
-├── products/                      # Standalone offerings
-│   ├── tools/                     # software tools
-│   ├── apps/                      # applications
-│   ├── resources/                 # downloadables, presets, samples
-│   ├── tutorials/                 # tutorial content
-│   ├── socials/                   # social content & archives
-│   ├── streams/                   # stream setups & schedules
-│   └── blog/                      # blog posts & newsletter issues
-│
-├── projects/                      # Time-bounded work
-│   ├── client/<client>/<project>/ # client work (client-first)
-│   ├── collabs/<partner>/<project>/
-│   ├── residencies/<venue>/<name-year>/
-│   ├── studio/                    # internal studio projects
-│   ├── research/                  # experiments / R&D
-│   └── open-calls/                # applications & submissions
-│
-├── performances/                  # Live work
-│   ├── av/                        # audio-visual performances
-│   ├── dj-sets/
-│   ├── talks/
-│   └── events/                    # events / meetups we organize
-│
-├── docs/                          # studio-wide docs (brand, bios, templates)
-│
-└── .agents/skills/                # AI agent skills
+├── .github/workflows/deploy.yml   # auto-deploy on push to main
+└── website/                        # Astro site
 ```
 
-## Website
+## Development
 
-The portfolio site lives in `website/` and is built with [Astro](https://astro.build). It deploys automatically to GitHub Pages on every push to `main`.
+```bash
+cd website
+npm install
+npm run dev       # local dev server
+npm run build     # production build
+```
 
-Currently a blank starter — ready for development.
-
-## Media
-
-`media/` folders and heavy file types (`.mp4`, `.mov`, `.wav`, `.psd`, RAW photos, etc.) are **gitignored**. They live outside git (external drive / cloud storage).
-
-## For AI Agents
-
-Scaffolding is handled by the **`create-project`** skill in `.agents/skills/`. It covers all item types: clients, projects, collabs, residencies, performances, products, and more.
-
-Use it by saying something like:
-- "create a new client called Acme Corp"
-- "new DJ set at Berghain on 2026-07-15"
-- "add an open call for Ars Electronica 2026"
-
-The skill will ask the necessary questions and scaffold the correct folder.
-
-See [`AGENTS.md`](AGENTS.md) for details.
+Push to `main` → deploys automatically to GitHub Pages.
