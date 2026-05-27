@@ -34,29 +34,9 @@ It handles all item types:
 - Do not invent values — ask the user
 - Stage files with `git add` but do not commit or push unless asked
 
-## Website — adding performances
+## Website
 
-The site is in `website/` (Astro, deployed to GitHub Pages).
-
-To add a performance, create a `.md` file in `website/src/content/performances/` with this frontmatter:
-
-```yaml
-title: "Show Name"           # required
-date: YYYY-MM-DD              # required
-venue: "Venue Name"           # required
-city: "City"                  # required
-type: "av"                    # required: av | dj-set | talk | event
-url: "https://..."            # optional: makes title a link
-description: "..."             # optional
-lineup: [artist1, artist2]     # optional
-draft: true                    # optional: hides from site
-```
-
-File naming convention: `YYYY-MM-DD-short-name.md` (e.g. `2026-09-20-berghain.md`).
-
-The site auto-sorts into **Upcoming** / **Past** by date. Push to `main` → deploys in ~30s.
-
-See `website/src/content/performances/_example.md` for a reference template.
+The site is in `website/` (Astro, deployed to GitHub Pages). Currently a blank starter — ready for development.
 
 ## Agent-specific setup
 

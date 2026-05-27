@@ -40,30 +40,7 @@ nda-studio/
 
 The portfolio site lives in `website/` and is built with [Astro](https://astro.build). It deploys automatically to GitHub Pages on every push to `main`.
 
-**Live at:** [nda.studio](https://nda.studio)
-
-### Adding a performance
-
-Create a `.md` file in `website/src/content/performances/`:
-
-```markdown
----
-title: "Show Name"
-date: 2026-09-20
-venue: "Venue Name"
-city: "Berlin"
-type: "av"            # av | dj-set | talk | event
-url: "https://..."    # optional, makes title a link
-description: "..."    # optional
-lineup: [artist1]     # optional
-draft: true           # optional, hides from site
----
-Optional body text.
-```
-
-The site automatically splits performances into **Upcoming** and **Past** based on the date. Push → deploys in ~30 seconds.
-
-See `website/src/content/performances/_example.md` for a template.
+Currently a blank starter — ready for development.
 
 ## Media
 
