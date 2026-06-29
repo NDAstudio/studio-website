@@ -4,25 +4,8 @@
    Fonts: Picnic (display) + Karrik (body), self-hosted from /public/fonts.
    ========================================================================== */
 
-/* ---- Fonts -------------------------------------------------------------- */
-@font-face {
-  font-family: "Picnic";
-  src: url("/fonts/PicNic.woff2") format("woff2");
-  font-weight: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Karrik";
-  src: url("/fonts/Karrik-Regular.woff2") format("woff2");
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Karrik";
-  src: url("/fonts/Karrik-Italic.woff2") format("woff2");
-  font-style: italic;
-  font-display: swap;
-}
+/* Fonts (@font-face) are declared in index.astro so the src URLs can include
+   the site base path — required for GitHub Pages project sites. */
 
 /* ---- Design tokens ------------------------------------------------------ */
 :root {
