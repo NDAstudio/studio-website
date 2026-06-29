@@ -1,4 +1,9 @@
 ---
+import "../styles/global.css";
+import ShaderField from "../components/ShaderField.astro";
+import GrainOverlay from "../components/GrainOverlay.astro";
+import SiteName from "../components/SiteName.astro";
+import ContactLinks from "../components/ContactLinks.astro";
 ---
 
 <!doctype html>
@@ -6,7 +11,31 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NDA Studio</title>
+    <title>NDA/studio</title>
   </head>
-  <body></body>
+  <body>
+    <!-- background layers -->
+    <ShaderField />
+    <GrainOverlay />
+
+    <!-- content -->
+    <main class="page">
+      <SiteName />
+      <ContactLinks />
+    </main>
+
+    <style>
+      .page {
+        position: fixed;
+        inset: 0;
+        z-index: var(--z-content);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end; /* anchor to bottom */
+        align-items: flex-start;
+        gap: 1.5rem;
+        padding: var(--page-padding);
+      }
+    </style>
+  </body>
 </html>

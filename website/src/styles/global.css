@@ -1,0 +1,88 @@
+/* ==========================================================================
+   NDA/studio — global styles
+   Palette: "cream / earthling" (warm light) — drawn from the moodboard.
+   Fonts: Picnic (display) + Karrik (body), self-hosted from /public/fonts.
+   ========================================================================== */
+
+/* ---- Fonts -------------------------------------------------------------- */
+@font-face {
+  font-family: "Picnic";
+  src: url("/fonts/PicNic.woff2") format("woff2");
+  font-weight: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Karrik";
+  src: url("/fonts/Karrik-Regular.woff2") format("woff2");
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Karrik";
+  src: url("/fonts/Karrik-Italic.woff2") format("woff2");
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ---- Design tokens ------------------------------------------------------ */
+:root {
+  /* Cream / earthling palette (brighter, higher contrast) */
+  --bg: #e9e3cd; /* warm cream paper */
+  --text: #1d2b0d; /* deep forest green (ties the wordmark to the field) */
+  --accent: #9bc017; /* bright lime */
+  --muted: #5f6f3c; /* deeper olive-green */
+  --rule: rgba(29, 43, 13, 0.16); /* hairline on light */
+
+  /* Type */
+  --display: "Picnic", Georgia, serif;
+  --body: "Karrik", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  /* Spacing */
+  --page-padding: clamp(1.5rem, 4vw, 2.5rem);
+
+  /* Layering */
+  --z-backdrop: 0;
+  --z-content: 1;
+  --z-grain: 50;
+}
+
+/* ---- Reset -------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+/* ---- Base -------------------------------------------------------------- */
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 1.6;
+  /* Single full-viewport landing screen, no scroll */
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ---- Accessibility ----------------------------------------------------- */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}

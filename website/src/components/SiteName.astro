@@ -1,0 +1,268 @@
+---
+/**
+ * SiteName — the NDA/ masthead, board-styled.
+ *   eyebrow → small tracked tagline with a circled ® mark
+ *   NDA     → Picnic, green→lime gradient fill (ties into the shader field)
+ *   /       → bright lime slash, structural accent
+ *   suffix  → Karrik, cycles through site.name.suffixes with a spring +
+ *             accent-pixel dissolve burst on each swap
+ *
+ * Self-contained. Honors prefers-reduced-motion. Suffix list + tagline come
+ * from config.
+ */
+import { site } from "../config/site";
+const { primary, suffixes } = site.name;
+const { tagline } = site;
+const first = suffixes[0];
+---
+
+<header class="masthead">
+  <p class="eyebrow"><span class="eyebrow__mark">®</span>{tagline}</p>
+
+  <h1 class="logo">
+    <span class="logo__mark">{primary}<span class="logo__slash">/</span></span
+    ><span class="logo__suffix" data-suffixes={JSON.stringify(suffixes)}
+      >{first}</span
+    >
+  </h1>
+</header>
+
+<style>
+  .masthead {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    /* one-time reveal on load */
+    animation: mast-in 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* Eyebrow tagline */
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.55em;
+    font-family: var(--body);
+    font-size: clamp(0.85rem, 1.8vw, 1.15rem);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+  }
+  .eyebrow__mark {
+    display: inline-grid;
+    place-items: center;
+    width: 1.35em;
+    height: 1.35em;
+    border: 1.5px solid var(--accent);
+    border-radius: 50%;
+    color: var(--accent);
+    font-size: 0.7em;
+    letter-spacing: 0;
+  }
+
+  /* Wordmark fill: green gradient + a fine pixel grid (techy / dithered) */
+  .logo {
+    --ink:
+      repeating-linear-gradient(
+        0deg,
+        rgba(18, 30, 8, 0.32) 0 1px,
+        transparent 1px 5px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        rgba(18, 30, 8, 0.32) 0 1px,
+        transparent 1px 5px
+      ),
+      linear-gradient(172deg, #5b7d1d 0%, #2c4012 45%, #18250b 88%);
+    line-height: 0.88;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    font-weight: normal;
+  }
+
+  /* NDA — Picnic, green gradient fill (connects to the field) */
+  .logo__mark {
+    font-family: var(--display);
+    font-size: clamp(4rem, 15vw, 12rem);
+    background: var(--ink);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  /* The slash — same green gradient as the rest of the wordmark */
+  .logo__slash {
+    background: var(--ink);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  /* suffix — Karrik, same green gradient as NDA, the animated part */
+  .logo__suffix {
+    font-family: var(--body);
+    font-size: clamp(1.8rem, 6.4vw, 5.2rem);
+    letter-spacing: -0.01em;
+    background: var(--ink);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    vertical-align: baseline;
+    display: inline-block;
+    will-change: transform, opacity;
+  }
+
+  .logo__suffix.is-exiting {
+    animation: suffix-exit 0.22s ease-in both;
+  }
+  .logo__suffix.is-entering {
+    animation: suffix-enter 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  @keyframes suffix-exit {
+    to {
+      transform: translateY(-18px) scaleY(0.7);
+      opacity: 0;
+    }
+  }
+  @keyframes suffix-enter {
+    from {
+      transform: translateY(22px) scaleY(0.85);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0) scaleY(1);
+      opacity: 1;
+    }
+  }
+  @keyframes mast-in {
+    from {
+      transform: translateY(14px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .masthead,
+    .logo__suffix.is-exiting,
+    .logo__suffix.is-entering {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  // ── Logo system: cycle the suffix with a spring + accent dissolve burst ──
+  // Two copies exist (crisp + blurred echo); keep them in sync.
+  const els = Array.from(
+    document.querySelectorAll<HTMLElement>(".logo__suffix"),
+  );
+  const el = document.querySelector<HTMLElement>(
+    ".logo:not(.logo--echo) .logo__suffix",
+  );
+  if (el && els.length) {
+    const suffixes: string[] = JSON.parse(el.dataset.suffixes || "[]");
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (suffixes.length > 1 && !reduce) {
+      const accent =
+        getComputedStyle(document.documentElement)
+          .getPropertyValue("--accent")
+          .trim() || "#9bc017";
+
+      const canvas = document.createElement("canvas");
+      canvas.style.cssText =
+        "position:fixed;inset:0;pointer-events:none;z-index:60;";
+      document.body.appendChild(canvas);
+      const ctx = canvas.getContext("2d")!;
+
+      type P = {
+        x: number;
+        y: number;
+        vx: number;
+        vy: number;
+        a: number;
+        decay: number;
+        size: number;
+      };
+      let particles: P[] = [];
+      let rafId = 0;
+
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      resize();
+      window.addEventListener("resize", resize);
+
+      function spawn() {
+        const r = el!.getBoundingClientRect();
+        particles = [];
+        for (let i = 0; i < 90; i++) {
+          particles.push({
+            x: r.left + Math.random() * r.width,
+            y: r.top + Math.random() * r.height,
+            vx: (Math.random() - 0.5) * 2.5,
+            vy: -(Math.random() * 2.5 + 0.8),
+            a: 0.8 + Math.random() * 0.2,
+            decay: 0.012 + Math.random() * 0.012,
+            size: Math.random() * 2 + 0.5,
+          });
+        }
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let alive = false;
+        ctx.fillStyle = accent;
+        for (const p of particles) {
+          p.x += p.vx + Math.sin(performance.now() * 0.0015 + p.y * 0.04) * 0.4;
+          p.y += p.vy;
+          p.vy *= 0.97;
+          p.a -= p.decay;
+          if (p.a > 0) {
+            alive = true;
+            ctx.globalAlpha = p.a;
+            ctx.fillRect(p.x, p.y, p.size, p.size);
+          }
+        }
+        ctx.globalAlpha = 1;
+        if (alive) rafId = requestAnimationFrame(animate);
+        else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          rafId = 0;
+        }
+      }
+
+      let idx = 0;
+      function next() {
+        if (document.hidden) return;
+        els.forEach((e) => e.classList.add("is-exiting"));
+        spawn();
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(animate);
+        setTimeout(() => {
+          idx = (idx + 1) % suffixes.length;
+          els.forEach((e) => {
+            e.classList.remove("is-exiting");
+            e.textContent = suffixes[idx];
+            e.classList.add("is-entering");
+            e.addEventListener(
+              "animationend",
+              () => e.classList.remove("is-entering"),
+              { once: true },
+            );
+          });
+        }, 240);
+      }
+
+      setInterval(next, 3200);
+    }
+  }
+</script>

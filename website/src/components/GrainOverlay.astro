@@ -1,0 +1,27 @@
+---
+/**
+ * GrainOverlay — fine film grain over the whole page.
+ * SVG fractal noise, blended on top. Static, no JS, never intercepts clicks.
+ *
+ * ┌─ EASY TO EDIT ───────────────────────────────────────┐
+ * │ opacity         → grain visibility (0.2 subtle … 0.6) │
+ * │ background-size  → grain scale (smaller = finer)      │
+ * │ baseFrequency    → texture in the SVG below           │
+ * └──────────────────────────────────────────────────────┘
+ */
+---
+
+<div class="grain" aria-hidden="true"></div>
+
+<style>
+  .grain {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-grain);
+    pointer-events: none;
+    opacity: 0.4;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 150px 150px;
+  }
+</style>

@@ -1,0 +1,231 @@
+---
+/**
+ * ShaderField — generative background, board-style.
+ * A full-viewport WebGL fragment shader: slow domain-warped fractal noise
+ * forms soft organic green/cream terrain (blurred look), textured with
+ * ordered DITHERING and faint topographic CONTOUR lines.
+ *
+ * No libraries — raw WebGL1. Pauses in background tabs, freezes for
+ * prefers-reduced-motion, and falls back silently (body bg shows) if WebGL
+ * is unavailable. All tunables live in CONFIG / the palette block below.
+ */
+---
+
+<canvas id="shader-field" aria-hidden="true"></canvas>
+
+<style>
+  #shader-field {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: var(--z-backdrop);
+    display: block;
+    /* smooth upscale softens the dither into a textured blur */
+    image-rendering: auto;
+  }
+</style>
+
+<script>
+  // ── Tunables ───────────────────────────────────────────────────────────
+  const CONFIG = {
+    pixel: 2, // internal res divisor (higher = softer + faster)
+    speed: 0.018, // animation speed (0 = still) — slow / meditative
+    scale: 0.82, // form size (lower = bigger / more zoomed in)
+    ditherLevels: 12, // color steps; higher = subtler dither
+    contourStrength: 0.18, // 0 = no contour lines, ~0.3 = strong
+    contourBands: 7,
+    mouseStrength: 0.12, // how far the field drifts with the cursor
+    mouseEase: 0.06, // cursor follow smoothing (lower = laggier / smoother)
+  };
+
+  const canvas = document.getElementById("shader-field") as HTMLCanvasElement;
+  const gl = canvas.getContext("webgl", {
+    antialias: false,
+    alpha: false,
+    powerPreference: "low-power",
+  });
+
+  if (gl) {
+    const VERT = `
+      attribute vec2 a;
+      void main() { gl_Position = vec4(a, 0.0, 1.0); }
+    `;
+
+    const FRAG = `
+      precision highp float;
+      uniform vec2  u_res;
+      uniform float u_time;
+      uniform float u_scale;
+      uniform float u_levels;
+      uniform float u_contourStrength;
+      uniform float u_contourBands;
+      uniform vec2  u_mouse;
+      uniform float u_mouseStrength;
+
+      // ── Palette (edit these RGB values, 0–1) — brighter, higher contrast ──
+      const vec3 C_DEEP = vec3(0.086, 0.137, 0.035); // deep green shadow
+      const vec3 C_MOSS = vec3(0.231, 0.333, 0.063); // moss
+      const vec3 C_MID  = vec3(0.490, 0.667, 0.137); // mid green (punchy)
+      const vec3 C_SAGE = vec3(0.706, 0.831, 0.388); // bright sage
+      const vec3 C_PALE = vec3(0.953, 0.961, 0.851); // cream highlight
+      const vec3 C_LINE = vec3(0.792, 0.918, 0.196); // bright lime contour
+
+      float hash(vec2 p) {
+        p = fract(p * vec2(123.34, 345.45));
+        p += dot(p, p + 34.345);
+        return fract(p.x * p.y);
+      }
+      float noise(vec2 p) {
+        vec2 i = floor(p); vec2 f = fract(p);
+        float a = hash(i), b = hash(i + vec2(1.0, 0.0));
+        float c = hash(i + vec2(0.0, 1.0)), d = hash(i + vec2(1.0, 1.0));
+        vec2 u = f * f * (3.0 - 2.0 * f);
+        return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+      }
+      float fbm(vec2 p) {
+        float v = 0.0, a = 0.5;
+        for (int i = 0; i < 5; i++) { v += a * noise(p); p *= 2.0; a *= 0.5; }
+        return v;
+      }
+      // Compact ordered-dither (bayer) — returns [0,1)
+      float bayer2(vec2 a){ a = floor(a); return fract(a.x / 2.0 + a.y * a.y * 0.75); }
+      float bayer4(vec2 a){ return bayer2(0.5 * a) * 0.25 + bayer2(a); }
+
+      vec3 ramp(float t) {
+        // Cream (C_SAGE → C_PALE) gets more of the range for a lighter field.
+        vec3 c = mix(C_DEEP, C_MOSS, smoothstep(0.0,  0.28, t));
+        c = mix(c, C_MID,  smoothstep(0.28, 0.48, t));
+        c = mix(c, C_SAGE, smoothstep(0.48, 0.66, t));
+        c = mix(c, C_PALE, smoothstep(0.62, 0.92, t));
+        return c;
+      }
+
+      void main() {
+        vec2 uv = gl_FragCoord.xy / u_res;
+        uv.x *= u_res.x / u_res.y;
+
+        vec2 p = uv * u_scale;
+        p += (u_mouse - 0.5) * u_mouseStrength; // subtle cursor parallax
+        float t = u_time;
+
+        // Domain warp → soft, non-repeating organic forms
+        vec2 q = vec2(fbm(p + t), fbm(p + vec2(3.2, 1.7) - t));
+        vec2 r = vec2(
+          fbm(p + 2.0 * q + vec2(1.7, 9.2) + 0.15 * t),
+          fbm(p + 2.0 * q + vec2(8.3, 2.8))
+        );
+        float n = clamp(fbm(p + 2.0 * r) * 1.1, 0.0, 1.0);
+        // Bias the field lighter so cream tones dominate more of the frame.
+        n = pow(n, 0.78);
+
+        // Dither + posterize for the textured/halftone quality
+        float b = bayer4(gl_FragCoord.xy);
+        float qn = floor(n * u_levels + b) / u_levels;
+        vec3 col = ramp(qn);
+
+        // Faint topographic contour lines
+        float band = fract(n * u_contourBands);
+        float edge = smoothstep(0.0, 0.03, band) * smoothstep(0.0, 0.03, 1.0 - band);
+        col = mix(col, C_LINE, (1.0 - edge) * u_contourStrength);
+
+        gl_FragColor = vec4(col, 1.0);
+      }
+    `;
+
+    function compile(type: number, src: string) {
+      const s = gl!.createShader(type)!;
+      gl!.shaderSource(s, src);
+      gl!.compileShader(s);
+      return s;
+    }
+
+    const prog = gl.createProgram()!;
+    gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
+    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG));
+    gl.linkProgram(prog);
+    gl.useProgram(prog);
+
+    // Full-screen triangle
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([-1, -1, 3, -1, -1, 3]),
+      gl.STATIC_DRAW,
+    );
+    const loc = gl.getAttribLocation(prog, "a");
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+    const uRes = gl.getUniformLocation(prog, "u_res");
+    const uTime = gl.getUniformLocation(prog, "u_time");
+    gl.uniform1f(gl.getUniformLocation(prog, "u_scale"), CONFIG.scale);
+    gl.uniform1f(gl.getUniformLocation(prog, "u_levels"), CONFIG.ditherLevels);
+    gl.uniform1f(
+      gl.getUniformLocation(prog, "u_contourStrength"),
+      CONFIG.contourStrength,
+    );
+    gl.uniform1f(
+      gl.getUniformLocation(prog, "u_contourBands"),
+      CONFIG.contourBands,
+    );
+    gl.uniform1f(
+      gl.getUniformLocation(prog, "u_mouseStrength"),
+      CONFIG.mouseStrength,
+    );
+    const uMouse = gl.getUniformLocation(prog, "u_mouse");
+
+    // Smoothed cursor follow (normalized 0..1, y flipped to match gl_FragCoord).
+    const mouse = { tx: 0.5, ty: 0.5, x: 0.5, y: 0.5 };
+    window.addEventListener("pointermove", (e) => {
+      mouse.tx = e.clientX / window.innerWidth;
+      mouse.ty = 1 - e.clientY / window.innerHeight;
+    });
+
+    function resize() {
+      const w = Math.max(1, Math.ceil(window.innerWidth / CONFIG.pixel));
+      const h = Math.max(1, Math.ceil(window.innerHeight / CONFIG.pixel));
+      canvas.width = w;
+      canvas.height = h;
+      gl!.viewport(0, 0, w, h);
+      gl!.uniform2f(uRes, w, h);
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let raf = 0;
+    let running = false;
+
+    function frame(ms: number) {
+      mouse.x += (mouse.tx - mouse.x) * CONFIG.mouseEase;
+      mouse.y += (mouse.ty - mouse.y) * CONFIG.mouseEase;
+      gl!.uniform2f(uMouse, mouse.x, mouse.y);
+      gl!.uniform1f(uTime, ms * 0.001 * CONFIG.speed);
+      gl!.drawArrays(gl!.TRIANGLES, 0, 3);
+      raf = requestAnimationFrame(frame);
+    }
+    function start() {
+      if (running) return;
+      running = true;
+      raf = requestAnimationFrame(frame);
+    }
+    function stop() {
+      running = false;
+      cancelAnimationFrame(raf);
+    }
+
+    if (reduce) {
+      // Single static frame, no animation
+      gl.uniform1f(uTime, 10.0);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    } else {
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) stop();
+        else start();
+      });
+      start();
+    }
+  }
+</script>

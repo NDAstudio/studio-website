@@ -1,0 +1,51 @@
+---
+/**
+ * Backdrop — the paper ground for the page.
+ * Two layers, no JavaScript, no particles:
+ *   1. A static warm-paper wash (subtle radial glows for organic depth)
+ *   2. A fine film-grain texture over everything (SVG noise, multiply blend)
+ *
+ * Tunables are commented inline.
+ */
+---
+
+<div class="backdrop" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<style>
+  /* Warm paper wash — sits behind all content. */
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-backdrop);
+    background:
+      radial-gradient(
+        ellipse 60% 50% at 80% 12%,
+        rgba(241, 236, 220, 0.9) 0%,
+        transparent 60%
+      ),
+      radial-gradient(
+        ellipse 55% 45% at 12% 88%,
+        rgba(155, 168, 90, 0.18) 0%,
+        transparent 60%
+      ),
+      var(--bg);
+  }
+
+  /* Film grain — paper texture over the whole page.
+     ┌─ EASY TO EDIT ───────────────────────────────────────┐
+     │ opacity         → grain visibility (0.2 subtle … 0.6) │
+     │ background-size  → grain scale (smaller = finer)      │
+     │ baseFrequency    → texture in the SVG below           │
+     └──────────────────────────────────────────────────────┘ */
+  .grain {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-grain);
+    pointer-events: none;
+    opacity: 0.45;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 150px 150px;
+  }
+</style>
