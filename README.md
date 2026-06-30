@@ -7,13 +7,13 @@ Portfolio website for NDA Studio, built with [Astro](https://astro.build) and de
 ```
 nda-studio/
 ├── .github/workflows/deploy.yml   # auto-deploy on push to main
-└── website/                        # Astro site
+├── public/                        # static assets
+└── src/                           # Astro app source
 ```
 
 ## Development
 
 ```bash
-cd website
 npm install
 npm run dev       # local dev server
 npm run build     # production build

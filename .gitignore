@@ -1,4 +1,4 @@
-# --- OS / editor junk ---
+# OS / editor
 .DS_Store
 Thumbs.db
 .idea/
@@ -6,9 +6,17 @@ Thumbs.db
 *.swp
 *~
 
-# --- Node / website build ---
+# Dependencies
 node_modules/
+
+# Astro / build output
 dist/
+.astro/
+
+# Environment
 .env
-.env.local
+.env.*
+!.env.example
+
+# Local / internal
 docs/

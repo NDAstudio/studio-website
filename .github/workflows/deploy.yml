@@ -4,7 +4,12 @@ on:
   push:
     branches: [main]
     paths:
-      - 'website/**'
+      - 'src/**'
+      - 'public/**'
+      - 'astro.config.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
       - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
@@ -31,20 +36,18 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
-          cache-dependency-path: website/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install
-        working-directory: website
         run: npm install --no-audit --no-fund
 
       - name: Build
-        working-directory: website
         run: npm run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: website/dist
+          path: dist
 
       - name: Deploy to GitHub Pages
         id: deploy

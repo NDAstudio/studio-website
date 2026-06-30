@@ -5,7 +5,7 @@
    ========================================================================== */
 
 /* Fonts (@font-face) are declared in index.astro so the src URLs can include
-   the site base path — required for GitHub Pages project sites. */
+   the site base path used by the current deployment. */
 
 /* ---- Design tokens ------------------------------------------------------ */
 :root {
