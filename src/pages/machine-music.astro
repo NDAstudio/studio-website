@@ -1,0 +1,563 @@
+---
+/**
+ * Machine Music — project page for the live A/V set.
+ * Frosted cream panels float over the same shader field as the landing page.
+ * Sections: intro (description, hero photo), gallery with a lightbox.
+ * Booking buttons open an email. All content lives in config/machine-music.ts.
+ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ShaderField from "../components/ShaderField.astro";
+import GrainOverlay from "../components/GrainOverlay.astro";
+import CornerBrackets from "../components/CornerBrackets.astro";
+import { site } from "../config/site";
+import { machineMusic as mm } from "../config/machine-music";
+
+const base = import.meta.env.BASE_URL;
+const media = `${base}machine-music/`;
+const bookingHref = `mailto:${site.email}?subject=${encodeURIComponent(`Booking ${mm.title}`)}`;
+---
+
+<BaseLayout title={`${mm.title} · NDA/`} description={mm.description}>
+  <!-- background layers -->
+  <ShaderField />
+  <GrainOverlay />
+
+  <div class="mm">
+    <header class="top">
+      <nav class="top__bar" aria-label="Page sections">
+        <a class="top__mark" href={base} aria-label="NDA/ home">NDA/</a>
+        <div class="top__links">
+          <a href="#gallery">Gallery</a>
+          <a class="pill pill--solid" href={bookingHref}>Book us</a>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <!-- ============ DESCRIPTION ============ -->
+      <section class="intro">
+        <div class="panel intro__text">
+          <p class="eyebrow"><span class="eyebrow__mark">®</span>{mm.eyebrow}</p>
+          <h1 class="title">{mm.title}</h1>
+          <p class="lead">
+            Machine Music is a live audiovisual performance tracing the
+            lifecycle of a semiconductor chip.
+          </p>
+          <div class="desc">
+            <p>
+              At a moment when AI is driving unprecedented demand for chips, the
+              performance makes that largely invisible industry visible. Moving
+              through three acts (industrial awakening, system processes,
+              finished product), it reflects on the environmental cost,
+              geopolitical tension, and human labour behind the devices we
+              depend on. Nikilia performs real-time visuals in TouchDesigner
+              while Den Ree live-codes the music, both responding to each other
+              live. The energy draws audiences in while leaving something uneasy
+              underneath.
+            </p>
+          </div>
+
+          <div class="btns">
+            <a class="pill pill--solid" href={bookingHref}>Book Machine Music</a>
+            <a class="pill" href={mm.links.recap.href} target="_blank" rel="noopener noreferrer">Watch the recap ↗</a>
+            <a class="pill" href={mm.links.listen.href} target="_blank" rel="noopener noreferrer">Listen ↗</a>
+          </div>
+        </div>
+
+        <figure class="hud">
+          <div class="hud__frame">
+            <img
+              src={`${media}${mm.hero.file}`}
+              alt={mm.hero.alt}
+              width="1067"
+              height="1600"
+            />
+            <CornerBrackets inset="14px" size="30px" />
+          </div>
+          <figcaption class="chip-row">
+            <span class="chip">{mm.hero.caption}</span>
+            <span class="chip">{mm.hero.date}</span>
+          </figcaption>
+        </figure>
+      </section>
+
+      <!-- ============ GALLERY ============ -->
+      <section id="gallery" class="panel">
+        <div class="head">
+          <h2>Gallery</h2>
+        </div>
+
+        <div class="gallery" id="gallery-grid">
+          {
+            mm.gallery.map((photo) => (
+              <div class:list={["gallery__item", photo.span]}>
+                <button
+                  type="button"
+                  class="gallery__zoom"
+                  data-caption={photo.caption}
+                  aria-label={`Enlarge photo: ${photo.caption}`}
+                >
+                  <img
+                    src={`${media}${photo.file}`}
+                    alt={photo.alt}
+                    loading="lazy"
+                    style={photo.position ? `object-position: ${photo.position}` : undefined}
+                  />
+                </button>
+                {photo.link && (
+                  <a class="pill gallery__link" href={photo.link.href} target="_blank" rel="noopener noreferrer">
+                    {photo.link.label} ↗
+                  </a>
+                )}
+              </div>
+            ))
+          }
+        </div>
+      </section>
+
+      <dialog class="lightbox" id="lightbox" aria-label="Photo">
+        <img id="lightbox-img" alt="" />
+        <div class="lightbox__bar">
+          <span id="lightbox-cap"></span>
+          <button type="button" class="pill pill--solid" id="lightbox-close">Close</button>
+        </div>
+      </dialog>
+    </main>
+  </div>
+
+  <style>
+    /* ---- Page shell --------------------------------------------------- */
+    .mm {
+      --panel-bg: rgba(245, 242, 230, 0.8);
+      --panel-border: rgba(255, 255, 255, 0.5);
+      --panel-shadow: 0 4px 24px rgba(29, 43, 13, 0.1);
+      --glass: blur(14px) saturate(1.2);
+      --radius: 22px;
+
+      position: relative;
+      z-index: var(--z-content);
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 var(--page-padding) var(--page-padding);
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(1rem, 2.5vw, 1.75rem);
+    }
+
+    section {
+      scroll-margin-top: 6rem;
+    }
+
+    h2 {
+      font-family: var(--display);
+      font-weight: normal;
+      font-size: clamp(2.2rem, 4.6vw, 3.4rem);
+      line-height: 1;
+      text-wrap: balance;
+      background: var(--ink);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+    }
+
+    p {
+      max-width: 62ch;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* Frosted cream panel — same glass as the landing-page contact pill,
+       denser so long copy stays readable over the field. */
+    .panel {
+      position: relative;
+      padding: clamp(1.4rem, 3.5vw, 2.5rem);
+      border-radius: var(--radius);
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      box-shadow: var(--panel-shadow);
+      backdrop-filter: var(--glass);
+      -webkit-backdrop-filter: var(--glass);
+    }
+
+    .head {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: end;
+      gap: 1rem 2.5rem;
+      margin-bottom: 2rem;
+    }
+
+    /* Eyebrow with the circled ® mark (as on the landing page) */
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 0.55em;
+      font-size: clamp(0.75rem, 1.4vw, 0.9rem);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+    }
+    .eyebrow__mark {
+      display: inline-grid;
+      place-items: center;
+      width: 1.35em;
+      height: 1.35em;
+      border: 1.5px solid var(--accent);
+      border-radius: 50%;
+      color: var(--accent);
+      font-size: 0.7em;
+      letter-spacing: 0;
+    }
+
+    /* ---- Pills (buttons / links) -------------------------------------- */
+    .btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5em;
+      padding: 0.7em 1.3em;
+      border-radius: 999px;
+      border: 1px solid var(--rule);
+      background: rgba(245, 242, 230, 0.55);
+      color: var(--text);
+      font: inherit;
+      font-size: 14px;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition:
+        color 0.2s ease,
+        background-color 0.2s ease,
+        border-color 0.2s ease;
+    }
+    .pill:hover,
+    .pill:focus-visible {
+      border-color: var(--accent);
+      color: var(--muted);
+    }
+    .pill--solid {
+      background: var(--text);
+      border-color: var(--text);
+      color: var(--bg);
+    }
+    .pill--solid:hover,
+    .pill--solid:focus-visible {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    /* Small frosted caption chip */
+    .chip {
+      display: inline-block;
+      padding: 0.3em 0.85em;
+      border-radius: 999px;
+      background: rgba(245, 242, 230, 0.78);
+      border: 1px solid var(--panel-border);
+      backdrop-filter: var(--glass);
+      -webkit-backdrop-filter: var(--glass);
+      font-size: 12px;
+      letter-spacing: 0.02em;
+      color: var(--muted);
+    }
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    /* ---- Top bar ------------------------------------------------------ */
+    .top {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      padding-block: 0.9rem;
+    }
+    .top__bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.45rem 0.5rem 0.45rem 1.4rem;
+      border-radius: 999px;
+      background: rgba(245, 242, 230, 0.6);
+      border: 1px solid var(--panel-border);
+      box-shadow: var(--panel-shadow);
+      backdrop-filter: var(--glass);
+      -webkit-backdrop-filter: var(--glass);
+    }
+    .top__mark {
+      font-family: var(--display);
+      font-size: 1.7rem;
+      line-height: 1;
+      background: var(--ink);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+    }
+    .top__links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      font-size: 14px;
+      letter-spacing: 0.02em;
+    }
+    .top__links a:not(.pill) {
+      color: var(--muted);
+      transition: color 0.2s ease;
+    }
+    .top__links a:not(.pill):hover,
+    .top__links a:not(.pill):focus-visible {
+      color: var(--accent);
+    }
+    @media (max-width: 640px) {
+      .top__links a:not(.pill) {
+        display: none;
+      }
+    }
+
+    /* ---- Intro -------------------------------------------------------- */
+    .intro {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      gap: clamp(1rem, 2.5vw, 1.75rem);
+      align-items: stretch;
+      animation: rise-in 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    @media (max-width: 860px) {
+      .intro {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .intro__text {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .title {
+      font-family: var(--display);
+      font-weight: normal;
+      font-size: clamp(3.6rem, 9vw, 7.5rem);
+      line-height: 0.88;
+      letter-spacing: -0.01em;
+      margin: 1rem 0 1.6rem;
+      background: var(--ink);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+    }
+
+    .lead {
+      font-size: clamp(1.15rem, 1.7vw, 1.35rem);
+      line-height: 1.4;
+      margin-bottom: 1.1rem;
+    }
+    .desc {
+      display: grid;
+      gap: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 1.6rem;
+    }
+
+    /* Hero photo with lime corner brackets */
+    .hud {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    /* Desktop: the photo fills whatever height the text panel sets.
+       Stacked: it falls back to a 4:5 crop. */
+    .hud__frame {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--panel-shadow);
+    }
+    @media (max-width: 860px) {
+      .hud__frame {
+        aspect-ratio: 4 / 5;
+        max-height: 78vh;
+      }
+    }
+    .hud__frame img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* ---- Gallery ------------------------------------------------------ */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-auto-rows: 340px;
+      gap: 0.6rem;
+    }
+    @media (max-width: 860px) {
+      .gallery {
+        grid-template-columns: minmax(0, 1fr);
+        grid-auto-rows: 260px;
+      }
+    }
+    .gallery__item {
+      position: relative;
+      overflow: hidden;
+      border-radius: 14px;
+      background: var(--rule);
+    }
+    .gallery__zoom {
+      all: unset;
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: zoom-in;
+    }
+    .gallery__zoom:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+      border-radius: 14px;
+    }
+    .gallery__item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .gallery__zoom:hover img {
+      transform: scale(1.03);
+    }
+    .gallery .wide {
+      grid-column: span 2;
+    }
+    .gallery .tall {
+      grid-row: span 2;
+    }
+    /* Link pill sitting on the photo — denser glass so it reads on dark shots */
+    .gallery__link {
+      position: absolute;
+      left: 0.75rem;
+      bottom: 0.75rem;
+      max-width: calc(100% - 1.5rem);
+      background: rgba(245, 242, 230, 0.82);
+      border-color: var(--panel-border);
+      backdrop-filter: var(--glass);
+      -webkit-backdrop-filter: var(--glass);
+      font-size: 13px;
+    }
+    .gallery__link:hover,
+    .gallery__link:focus-visible {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    .lightbox {
+      margin: auto;
+      max-width: min(1200px, 94vw);
+      padding: 0.75rem;
+      border: 1px solid var(--panel-border);
+      border-radius: var(--radius);
+      background: var(--panel-bg);
+      color: var(--text);
+      box-shadow: var(--panel-shadow);
+    }
+    .lightbox::backdrop {
+      background: rgba(29, 43, 13, 0.72);
+      backdrop-filter: blur(6px);
+    }
+    .lightbox img {
+      max-height: 82vh;
+      width: auto;
+      margin: 0 auto;
+      border-radius: 14px;
+    }
+    .lightbox__bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+      padding-left: 0.4rem;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    @keyframes rise-in {
+      from {
+        transform: translateY(14px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .intro {
+        animation: none;
+      }
+      .gallery__item img {
+        transition: none;
+      }
+    }
+  </style>
+</BaseLayout>
+
+<style is:global>
+  html {
+    scroll-behavior: smooth;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+</style>
+
+<script>
+  // ── Gallery lightbox ───────────────────────────────────────────────────
+  const box = document.getElementById("lightbox") as HTMLDialogElement | null;
+  const boxImg = document.getElementById("lightbox-img") as HTMLImageElement | null;
+  const boxCap = document.getElementById("lightbox-cap");
+  const grid = document.getElementById("gallery-grid");
+  if (box?.showModal && boxImg && boxCap && grid) {
+    grid.addEventListener("click", (e) => {
+      const zoom = (e.target as HTMLElement).closest<HTMLElement>(".gallery__zoom");
+      const img = zoom?.querySelector("img");
+      if (!zoom || !img) return;
+      boxImg.src = img.src;
+      boxImg.alt = img.alt;
+      boxCap.textContent = zoom.dataset.caption ?? "";
+      box.showModal();
+    });
+    document.getElementById("lightbox-close")?.addEventListener("click", () => box.close());
+    // Click on the backdrop closes it
+    box.addEventListener("click", (e) => {
+      if (e.target === box) box.close();
+    });
+  }
+</script>

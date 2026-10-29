@@ -59,20 +59,8 @@ const first = suffixes[0];
     letter-spacing: 0;
   }
 
-  /* Wordmark fill: green gradient + a fine pixel grid (techy / dithered) */
+  /* Wordmark fill comes from the global --ink token */
   .logo {
-    --ink:
-      repeating-linear-gradient(
-        0deg,
-        rgba(18, 30, 8, 0.32) 0 1px,
-        transparent 1px 5px
-      ),
-      repeating-linear-gradient(
-        90deg,
-        rgba(18, 30, 8, 0.32) 0 1px,
-        transparent 1px 5px
-      ),
-      linear-gradient(172deg, #5b7d1d 0%, #2c4012 45%, #18250b 88%);
     line-height: 0.88;
     letter-spacing: -0.01em;
     white-space: nowrap;

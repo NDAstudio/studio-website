@@ -4,8 +4,8 @@
    Fonts: Picnic (display) + Karrik (body), self-hosted from /public/fonts.
    ========================================================================== */
 
-/* Fonts (@font-face) are declared in index.astro so the src URLs can include
-   the site base path used by the current deployment. */
+/* Fonts (@font-face) are declared in layouts/BaseLayout.astro so the src URLs
+   can include the site base path used by the current deployment. */
 
 /* ---- Design tokens ------------------------------------------------------ */
 :root {
@@ -15,6 +15,21 @@
   --accent: #9bc017; /* bright lime */
   --muted: #5f6f3c; /* deeper olive-green */
   --rule: rgba(29, 43, 13, 0.16); /* hairline on light */
+
+  /* Wordmark fill: green gradient + a fine pixel grid (techy / dithered).
+     Use with background-clip: text. */
+  --ink:
+    repeating-linear-gradient(
+      0deg,
+      rgba(18, 30, 8, 0.32) 0 1px,
+      transparent 1px 5px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(18, 30, 8, 0.32) 0 1px,
+      transparent 1px 5px
+    ),
+    linear-gradient(172deg, #5b7d1d 0%, #2c4012 45%, #18250b 88%);
 
   /* Type */
   --display: "Picnic", Georgia, serif;
@@ -38,9 +53,11 @@
   padding: 0;
 }
 
-html,
-body {
+html {
   height: 100%;
+}
+body {
+  min-height: 100%;
 }
 
 /* ---- Base -------------------------------------------------------------- */
@@ -51,12 +68,15 @@ body {
   font-weight: 400;
   font-size: 13px;
   line-height: 1.6;
-  /* Single full-viewport landing screen, no scroll */
   width: 100%;
-  height: 100dvh;
-  overflow: hidden;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+}
+
+/* Single full-viewport screen, no scroll (landing page) */
+body.no-scroll {
+  height: 100dvh;
+  overflow: hidden;
 }
 
 a {

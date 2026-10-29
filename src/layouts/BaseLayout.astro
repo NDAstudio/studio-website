@@ -1,0 +1,56 @@
+---
+/**
+ * BaseLayout — shared document shell for every page: global styles and the
+ * self-hosted fonts. Fonts are declared here (not in global.css) so the src
+ * URLs can include the site base path.
+ *
+ * `bodyClass="no-scroll"` locks the page to one viewport (landing page).
+ */
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description?: string;
+  bodyClass?: string;
+}
+
+const { title, description, bodyClass } = Astro.props;
+
+// Base path ("/" on the custom domain) so font URLs resolve consistently.
+const base = import.meta.env.BASE_URL;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+
+    <style
+      set:html={`
+      @font-face {
+        font-family: 'Picnic';
+        src: url('${base}fonts/PicNic.woff2') format('woff2');
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'Karrik';
+        src: url('${base}fonts/Karrik-Regular.woff2') format('woff2');
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'Karrik';
+        src: url('${base}fonts/Karrik-Italic.woff2') format('woff2');
+        font-style: italic;
+        font-display: swap;
+      }
+    `}
+    />
+  </head>
+  <body class={bodyClass}>
+    <slot />
+  </body>
+</html>
