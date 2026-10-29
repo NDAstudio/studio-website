@@ -1,0 +1,53 @@
+---
+/**
+ * CornerBrackets — four lime corner marks (board style).
+ * Place inside any `position: relative` box; they sit on its corners.
+ *   inset → distance from the box edges (CSS length)
+ *   size  → arm length of each bracket (CSS length)
+ */
+interface Props {
+  inset?: string;
+  size?: string;
+}
+const { inset = "0px", size = "16px" } = Astro.props;
+const vars = `--bracket-inset: ${inset}; --bracket-size: ${size};`;
+---
+
+<span class="bracket bracket--tl" style={vars} aria-hidden="true"></span>
+<span class="bracket bracket--tr" style={vars} aria-hidden="true"></span>
+<span class="bracket bracket--bl" style={vars} aria-hidden="true"></span>
+<span class="bracket bracket--br" style={vars} aria-hidden="true"></span>
+
+<style>
+  .bracket {
+    position: absolute;
+    width: var(--bracket-size);
+    height: var(--bracket-size);
+    border: 1.5px solid var(--accent);
+    pointer-events: none;
+  }
+  .bracket--tl {
+    top: var(--bracket-inset);
+    left: var(--bracket-inset);
+    border-right: 0;
+    border-bottom: 0;
+  }
+  .bracket--tr {
+    top: var(--bracket-inset);
+    right: var(--bracket-inset);
+    border-left: 0;
+    border-bottom: 0;
+  }
+  .bracket--bl {
+    bottom: var(--bracket-inset);
+    left: var(--bracket-inset);
+    border-right: 0;
+    border-top: 0;
+  }
+  .bracket--br {
+    bottom: var(--bracket-inset);
+    right: var(--bracket-inset);
+    border-left: 0;
+    border-top: 0;
+  }
+</style>

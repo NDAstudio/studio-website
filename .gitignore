@@ -13,3 +13,6 @@ dist/
 .env
 .env.*
 !.env.example
+
+# Local reference material (copied from iCloud, not deployed)
+_reference/

@@ -5,14 +5,12 @@
  * Links are driven entirely by site config.
  */
 import { site } from "../config/site";
+import CornerBrackets from "./CornerBrackets.astro";
 const { email, socials } = site;
 ---
 
 <div class="contact-frame">
-  <span class="bracket bracket--tl" aria-hidden="true"></span>
-  <span class="bracket bracket--tr" aria-hidden="true"></span>
-  <span class="bracket bracket--bl" aria-hidden="true"></span>
-  <span class="bracket bracket--br" aria-hidden="true"></span>
+  <CornerBrackets />
 
   <nav class="contact" aria-label="Contact and social links">
     <a class="contact__link contact__email" href={`mailto:${email}`}>{email}</a>
@@ -85,37 +83,5 @@ const { email, socials } = site;
   .contact__link:hover,
   .contact__link:focus-visible {
     color: var(--accent);
-  }
-
-  /* Corner brackets */
-  .bracket {
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    border: 1.5px solid var(--accent);
-  }
-  .bracket--tl {
-    top: 0;
-    left: 0;
-    border-right: 0;
-    border-bottom: 0;
-  }
-  .bracket--tr {
-    top: 0;
-    right: 0;
-    border-left: 0;
-    border-bottom: 0;
-  }
-  .bracket--bl {
-    bottom: 0;
-    left: 0;
-    border-right: 0;
-    border-top: 0;
-  }
-  .bracket--br {
-    bottom: 0;
-    right: 0;
-    border-left: 0;
-    border-top: 0;
   }
 </style>
